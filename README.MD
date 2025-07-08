@@ -19,6 +19,7 @@ This project creates a reactive RGB overlay for OBS (Open Broadcaster Software) 
 2. Install the required Python packages:
    ```bash
    pip install fastapi uvicorn python-osc
+   pip install 'uvicorn[standard]'
    ```
 
 3. Open `rgb_overlay.html` in a web browser to view the overlay.
