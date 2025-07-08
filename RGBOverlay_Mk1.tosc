@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<layout version="12" mode="1" orientation="horizontal" pages="1"><page name="RGBControl"><control name="rgb_r" x="0" y="0" w="2" h="4" type="faderh" osc="/rgb_r" /><control name="rgb_g" x="0" y="1" w="2" h="4" type="faderh" osc="/rgb_g" /><control name="rgb_b" x="0" y="2" w="2" h="4" type="faderh" osc="/rgb_b" /><control name="send_rgb" x="2" y="1" w="2" h="2" type="push" osc="/rgb" /></page></layout>

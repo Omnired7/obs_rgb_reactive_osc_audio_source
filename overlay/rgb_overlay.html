@@ -54,13 +54,26 @@
     const tiles = document.querySelectorAll('.hex-tile');
     let timeout;
 
+    //console.log("testing websocket connection...");
+
+    ws.onopen = () => console.log("✅ WebSocket connected");
+
+    
+    ws.onerror = (e) => console.error("❌ WebSocket error", e);
+
+    ws.onclose = () => console.warn("⚠️ WebSocket closed");
+
+
     ws.onmessage = (event) => {
+      console.log("💬 Message received:", msg.data);
       const [r, g, b] = event.data.split(',').map(Number);
       const color = `rgb(${r}, ${g}, ${b})`;
 
       tiles.forEach(tile => {
         tile.style.backgroundColor = color;
       });
+
+      console.log(`Color changed to: ${color}`);
 
       clearTimeout(timeout);
       timeout = setTimeout(() => {

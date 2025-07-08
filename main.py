@@ -30,12 +30,25 @@ async def broadcast_rgb(r, g, b):
     for ws in list(active_sockets):
         try:
             await ws.send_text(message)
+            print("✅ Sent to WebSocket")
         except:
+            print("❌ Failed to send")
             active_sockets.remove(ws)
+# Main event loop for asyncio
+main_loop = asyncio.get_event_loop()
 
 # Handle OSC input
-def handle_rgb(addr, r, g, b):
-    asyncio.create_task(broadcast_rgb(int(r), int(g), int(b)))
+def handle_rgb(addr, *args):
+    print(f"Received /rgb from {addr} with args: {args}")
+    if len(args) != 3:
+        print("Invalid RGB input: expected 3 values, got", args)
+        return
+    try:
+        r, g, b = map(int, args)
+        # Schedule coroutine in main event loop from OSC thread
+        asyncio.run_coroutine_threadsafe(broadcast_rgb(r, g, b), main_loop)
+    except Exception as e:
+        print("Error handling RGB values:", e)
 
 # Start OSC + WebSocket server together
 def start_osc():
