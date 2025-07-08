@@ -65,7 +65,11 @@
 
 
     ws.onmessage = (event) => {
+<<<<<<< HEAD
       console.log("💬 Message received:", event.data);
+=======
+      console.log("💬 Message received:", event);
+>>>>>>> 17de150 (adds support for rgb interaction)
       const [r, g, b] = event.data.split(',').map(Number);
       const color = `rgb(${r}, ${g}, ${b})`;
 

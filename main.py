@@ -3,8 +3,22 @@ from fastapi.staticfiles import StaticFiles
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import ThreadingOSCUDPServer
 import asyncio
+import threading # to handle OSC and WebSocket concurrently
 
-app = FastAPI()
+main_loop = None
+
+
+
+socket_lock = threading.Lock()
+active_sockets = set()
+
+async def lifespan(app: FastAPI):
+    global main_loop
+    main_loop = asyncio.get_running_loop()
+    print("🌐 Main event loop captured")
+    yield  # app continues running here
+
+app = FastAPI(lifespan=lifespan)
 
 # Mount overlay folder
 app.mount("/overlay", StaticFiles(directory="overlay"), name="overlay")
@@ -15,27 +29,36 @@ active_sockets = set()
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    active_sockets.add(websocket)
+    with socket_lock:
+        active_sockets.add(websocket)
+    print("🟢 WebSocket connected")
+
     try:
         while True:
-            await websocket.receive_text()  # Keep alive
+            await websocket.receive_text()
     except:
         pass
     finally:
-        active_sockets.remove(websocket)
+        with socket_lock:
+            active_sockets.remove(websocket)
+            
+
 
 # Broadcast RGB to all connected overlays
 async def broadcast_rgb(r, g, b):
     message = f"{r},{g},{b}"
-    for ws in list(active_sockets):
+    print(f"🔴 Broadcasting: {message}")
+    with socket_lock:
+        sockets = list(active_sockets)
+
+    for ws in sockets:
         try:
             await ws.send_text(message)
             print("✅ Sent to WebSocket")
-        except:
-            print("❌ Failed to send")
-            active_sockets.remove(ws)
-# Main event loop for asyncio
-main_loop = asyncio.get_event_loop()
+        except Exception as e:
+            print("❌ Failed to send", e)
+            with socket_lock:
+                active_sockets.discard(ws)
 
 # Handle OSC input
 def handle_rgb(addr, *args):
@@ -61,6 +84,9 @@ def start_osc():
 if __name__ == "__main__":
     import threading
     import uvicorn
+    
+    # Main event loop for asyncio
+    main_loop = asyncio.get_event_loop()
 
     osc_thread = threading.Thread(target=start_osc, daemon=True)
     osc_thread.start()
