@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LED Hex Overlay</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: transparent;
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hex-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 100px);
+      gap: 8px;
+      transform: rotate(30deg);
+    }
+
+    .hex-tile {
+      width: 100px;
+      height: 55px;
+      background: grey;
+      clip-path: polygon(
+        25% 0%, 75% 0%, 
+        100% 50%, 75% 100%, 
+        25% 100%, 0% 50%
+      );
+      transition: background-color 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="hex-grid" id="grid">
+    <!-- 18 hex tiles -->
+    <div class="hex-tile"></div><div class="hex-tile"></div><div class="hex-tile"></div>
+    <div class="hex-tile"></div><div class="hex-tile"></div><div class="hex-tile"></div>
+    <div class="hex-tile"></div><div class="hex-tile"></div><div class="hex-tile"></div>
+    <div class="hex-tile"></div><div class="hex-tile"></div><div class="hex-tile"></div>
+    <div class="hex-tile"></div><div class="hex-tile"></div><div class="hex-tile"></div>
+    <div class="hex-tile"></div><div class="hex-tile"></div><div class="hex-tile"></div>
+  </div>
+
+  <script>
+    const ws = new WebSocket('ws://localhost:8080/ws');
+    const tiles = document.querySelectorAll('.hex-tile');
+    let timeout;
+
+    ws.onmessage = (event) => {
+      const [r, g, b] = event.data.split(',').map(Number);
+      const color = `rgb(${r}, ${g}, ${b})`;
+
+      tiles.forEach(tile => {
+        tile.style.backgroundColor = color;
+      });
+
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        tiles.forEach(tile => tile.style.backgroundColor = 'grey');
+      }, 2000);
+    };
+  </script>
+</body>
+</html>
