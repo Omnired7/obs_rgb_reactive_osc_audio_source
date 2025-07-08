@@ -34,13 +34,16 @@ This project creates a reactive RGB overlay for OBS (Open Broadcaster Software) 
 2. Send RGB values to the OSC server (e.g., using an OSC client):
    ```
    /rgb 255 0 0
+
+   use the RGBOverlay_Mk2.tosc with Touch OSC to use as a demo / control interface
+
+   Touch OSC can be downloaded from https://hexler.net/touchosc
    ```
 
 3. The WebSocket client in `rgb_overlay.html` will receive the RGB values and update the hex tiles accordingly.
 
 ## Customization
 
-- Modify the hex tile colors by changing the CSS in `rgb_overlay.html`.
 - Adjust the OSC server settings in `main.py` as needed.
 
 ## License
